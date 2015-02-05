@@ -7,50 +7,31 @@ Percolate.Contact = {};
 
 Percolate.Contact.Overlay = React.createClass({
   propTypes: {
-    open: React.PropTypes.bool
+    containerElement: React.PropTypes.instanceOf(Element)
   },
-  
+
   getDefaultProps: function() {
     return {
-      open: false
+      containerElement: null
     }
   },
-  
-  getInitialState: function() {
-    return {
-      open: this.props.open
-    }
-  },
-  
-  componentWillReceiveProps: function(nextProps) {
-    if (nextProps.open)
-      this.setOpen(nextProps.open);
-  },
-  
+
   setOpen: function(open) {
-    this.setState({open: !! open});
+    jQuery(this.props.containerElement).toggleClass('contact-open', !! open);
   },
-  
+
   handleClose: function(event) {
     event.preventDefault();
     this.setOpen(false);
   },
-  
-  render: function() {
-    var classes = React.addons.classSet({
-      'layout': true,
-      'contact-open': this.state.open
-    });
 
+  render: function() {
     return (
-      <div className={classes}>
-        <div className="overlay-screen-contact">
-          <a className="overlay-close" onClick={this.handleClose}>
-            <span className="icon-cross"></span>
-          </a>
-          <Percolate.Contact.Form setOverlayOpen={this.setOpen} />
-          <Percolate.Contact.Footer />
-        </div>
+      <div className='percolate-contact-overlay'>
+        <a className="overlay-close" onClick={this.handleClose}>
+          <span className="icon-cross"></span>
+        </a>
+        <Percolate.Contact.Form setOverlayOpen={this.setOpen} />
       </div>
     )
   }
@@ -94,20 +75,20 @@ Percolate.Contact.Footer = React.createClass({
 var gatherTruthy = function(/* obj, ...keys */) {
   var keys = Array.prototype.slice.call(arguments);
   var result = [];
-  
+
   obj = keys.shift();
-  
+
   _.each(keys, function(key) {
     if (obj[key] && result.indexOf(key) === -1)
       result.push(key);
   });
-  
+
   return result;
 }
 
 Percolate.Contact.Form = React.createClass({
   mixins: [React.addons.LinkedStateMixin],
-  
+
   getInitialState: function() {
     return {
       name: '',
@@ -128,39 +109,39 @@ Percolate.Contact.Form = React.createClass({
       submitting: false
     };
   },
-  
+
   getModel: function() {
     var model = _.pick(this.state, 'name', 'email', 'about');
-    model.services = gatherTruthy(this.state, 'strategy', 'design', 
+    model.services = gatherTruthy(this.state, 'strategy', 'design',
       'engineering', 'consulting');
     model.timing = gatherTruthy(this.state, 'today', 'quarter', 'year');
     model.budget = gatherTruthy(this.state, '25k', '50k', '100k', 'notsure');
 
     return model;
   },
-    
+
   handleSubmit: function(event) {
     event.preventDefault();
-    
+
     if (this.validate()) {
       this.send();
     }
   },
-  
+
   componentDidMount: function() {
     jQuery(this.refs.about.getDOMNode()).autosize();
   },
-  
+
   alertClass: function(name) {
     return this.state.errors[name] ? 'alert' : '';
   },
-  
+
   // urgh, wish we had a schema library
   validate: function() {
-    var errors = this.state.errors = {}, 
+    var errors = this.state.errors = {},
       valid = true,
       model = this.getModel();
-    
+
     _.each(['name', 'email', 'about'], function(field) {
       if (! model[field]) {
         errors[field] = 'is required';
@@ -170,7 +151,7 @@ Percolate.Contact.Form = React.createClass({
         valid = false;
       }
     }.bind(this));
-    
+
     _.each(['services', 'timing'], function(field) {
       if (! model[field].length) {
         errors[field] = 'is required';
@@ -182,19 +163,19 @@ Percolate.Contact.Form = React.createClass({
       errors['budget'] = 'is required';
       valid = false;
     }
-    
+
     this.setState({errors: errors});
 
     return valid;
   },
-  
+
   send: function(model) {
     var model = this.getModel();
     var to = 'us@percolatestudio.com';
     var subject = 'Work with us';
     var body = React.renderToStaticMarkup(
       <Percolate.Contact.FormEmail model={model}/>);
-  
+
     var data = {
         'key': '-JqlbKb2ZHU7R5NEkCvnKw', // changeme
         'message': {
@@ -216,7 +197,7 @@ Percolate.Contact.Form = React.createClass({
           'html': body
         }
       };
-  
+
     this.setState({ submitting: true });
     jQuery.post('https://mandrillapp.com/api/1.0/messages/send.json', data)
       .done(function() {
@@ -224,7 +205,7 @@ Percolate.Contact.Form = React.createClass({
       })
       .fail(function() {
         // fallback incase ajax fails
-        window.open('mailto:' + to 
+        window.open('mailto:' + to
           + '?subject=' + subject + ' (mailto)'
           + '&body=' + escape(body)
         );
@@ -234,20 +215,20 @@ Percolate.Contact.Form = React.createClass({
         this.props.setOverlayOpen(false);
       }.bind(this));
   },
-  
+
   error: function(name) {
     if (this.state.errors[name])
       return (<span className="error">{this.state.errors[name]}</span>);
   },
-  
+
   shouldHaveBudget: function() {
     return this.state.strategy || this.state.design || this.state.engineering;
   },
 
   render: function() {
-    var budgetFieldsetClasses = "fieldset-group "
-      + (this.shouldHaveBudget() ? 'visible' : 'hidden');
-    
+    var budgetFieldsetClasses = "fieldset-group hidden "
+      + (this.shouldHaveBudget() ? 'visible' : '');
+
     var servicesError = this.error('services');
 
     var servicesLabel = servicesError ? servicesError :
@@ -317,6 +298,7 @@ Percolate.Contact.Form = React.createClass({
           </div>
           <button className="btn-primary caps" disabled={this.state.submitting} type="submit">Send Message</button>
         </fieldset>
+        <Percolate.Contact.Footer />
       </form>
     )
   }
@@ -325,16 +307,16 @@ Percolate.Contact.Form = React.createClass({
 Percolate.Contact.FormEmail = React.createClass({
   render: function() {
     var model = this.props.model;
-    
+
     var servicesNodes = model.services.map(function(service, index) {
       return ( <li key={index}>{service}</li> );
     });
-    
+
     var timing = model.timing.join();
     var budget = model.budget.join();
-    
+
     var budgetNodes = budget ? [<dt key='0'>Budget</dt>, <dd key='1'>{budget}</dd>] : null;
-    
+
     return (
       <dl>
         <dt>Name</dt><dd>{model.name}</dd>
