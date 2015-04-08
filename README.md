@@ -4,7 +4,7 @@ Shared on [percolatestudio.com](percolatestudio.com) and  [blog.percolatestudio.
 
 #### Development
 
-Running with hot code reload 
+Running with hot code reload LICENSE.txt
 
 ``` bash
 $ npm install
@@ -13,14 +13,18 @@ $ npm start
 
 Then visit
 
-[http://localhost:3000](http://localhost:3000)
+[http://localhost:8080](http://localhost:8080)
+
+or to see a nice hot reload header
+
+[http://localhost:8080/webpack-dev-server/assetsbundle](http://localhost:8080/webpack-dev-server/assetsbundle)
 
 #### Usage via npm
 
 In your project
 
 ``` bash
-$ npm install percolate-contact-form --save
+$ npm install https://github.com/percolatestudio/contact-form/archive/master.tar.gz --save
 ```
 
 Then 

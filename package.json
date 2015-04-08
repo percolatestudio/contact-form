@@ -1,10 +1,10 @@
 {
   "name": "percolate-contact-form",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "React Component for our basic contact form",
   "main": "src/PercolateContactForm.jsx",
   "scripts": {
-    "start": "node server"
+    "start": "node ./node_modules/webpack-dev-server/bin/webpack-dev-server.js --colors --hot --history-api-fallback"
   },
   "repository": {
     "type": "git",
