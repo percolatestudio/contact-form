@@ -32,3 +32,7 @@ Then
 ``` js
 React.render(<PercolateContactForm openContact={...} />, document.body);
 ```
+
+## License 
+
+MIT. (c) Percolate Studio, maintained by Zoltan Olah (@zol).
