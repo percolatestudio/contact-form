@@ -173,36 +173,20 @@ var Form = React.createClass({
     var model = this.getModel();
     var to = 'us@percolatestudio.com';
     var subject = 'Work with us';
-    // The key is public anyway so we're ok with checking it into GH for now
-    var mandrillKey = '-JqlbKb2ZHU7R5NEkCvnKw';
     var body = React.renderToStaticMarkup(
       <FormEmail model={model}/>);
 
-    var data = {
-        'key': mandrillKey,
-        'message': {
-          'from_email': model.email,
-          'to': [
-              {
-                'email': to,
-                'name': 'Percolate Studio',
-                'type': 'to'
-              },
-              // Just in case us@ alias breaks, yep it happens sometimes
-              {
-                'email': 'zol@percolatestudio.com',
-                'name': 'Zoltan Olah',
-                'type': 'to'
-              }
-            ],
-          'autotext': 'true',
-          'subject': subject,
-          'html': body
-        }
-      };
+    var data = _.extend({
+      _subject: subject,
+      // Just in case us@ gets lost
+      _cc: 'zol@me.com'
+    }, model);
+    console.log(data);
 
     this.setState({ submitting: true });
-    $.post('https://mandrillapp.com/api/1.0/messages/send.json', data)
+
+    // Now using the free formspree service as Mandrill has moved to paid
+    $.post('https://formspree.io/' + to, data, null, 'json')
       .done(function() {
         alert('Thank you. We will contact you shortly'); // eslint-disable-line no-alert
       })
