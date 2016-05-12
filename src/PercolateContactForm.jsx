@@ -175,6 +175,7 @@ var Form = React.createClass({
     var subject = 'Work with us';
     var body = React.renderToStaticMarkup(
       <FormEmail model={model}/>);
+    var url = 'https://formspree.io/' + to;
 
     var data = _.extend({
       _subject: subject,
@@ -186,11 +187,16 @@ var Form = React.createClass({
     this.setState({ submitting: true });
 
     // Now using the free formspree service as Mandrill has moved to paid
-    $.post('https://formspree.io/' + to, data, null, 'json')
+    $.post(url, data, null, 'json')
       .done(function() {
         alert('Thank you. We will contact you shortly'); // eslint-disable-line no-alert
       })
       .fail(function() {
+        console.log('Falling back to mailto');
+        console.log('url:' + url);
+        console.log(data);
+        console.log(arguments);
+
         // fallback incase ajax fails
         window.open('mailto:' + to
           + '?subject=' + subject + ' (mailto)'
